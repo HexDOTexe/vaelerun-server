@@ -15,19 +15,19 @@ func change_map():
 	if is_map_active == false:
 		return
 	else:
-		Server.print_log("world", "Requested map change blocked.")
+		Server.print_log("server", "world", "Requested map change blocked.")
 
 func load_map():
 	world_map = test_map.instantiate()
 	add_child(world_map)
-	Server.print_log("world", "World map has been loaded.")
+	Server.print_log("server", "world", "Map has been loaded.")
 	pass
 
 func start_map():
 	# eventually this will control entity activation signals for the loaded map
 	Server.world_status = "ONLINE"
 	is_map_active = true
-	Server.print_log("world", "World map has been started.")
+	Server.print_log("server", "world", "Map has been started.")
 	pass
 
 func close_map():
