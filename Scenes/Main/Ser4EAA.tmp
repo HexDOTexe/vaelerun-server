@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdy0nnxayt6hf"]
+
+[ext_resource type="Script" path="res://Scenes/Main/Server.gd" id="1_nvlsl"]
+
+[node name="Server" type="Node"]
+script = ExtResource("1_nvlsl")
+
+[node name="Status" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "test"

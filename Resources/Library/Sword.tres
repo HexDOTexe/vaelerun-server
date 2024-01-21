@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=2 format=3 uid="uid://bfkbwkkk7p0m4"]
+
+[ext_resource type="Script" path="res://Resources/Types/Weapon.gd" id="1_tknf1"]
+
+[resource]
+script = ExtResource("1_tknf1")
+weapon_name = "Sword of Testing"
+weapon_type = 2
+wield_options = 0
+primary_damage_school = 0
+primary_damage_min = 1
+primary_damage_max = 10
+secondary_damage_school = 1
+secondary_damage_min = 1
+secondary_damage_max = 3
