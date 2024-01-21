@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1dnb6snn0ali"]
+
+[ext_resource type="Script" path="res://Scripts/ServerDisplay.gd" id="1_mijhl"]
+
+[node name="ServerDisplay" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_mijhl")
+
+[node name="ServerStatus" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "if you can see this text outside of the editor, something went wrong"

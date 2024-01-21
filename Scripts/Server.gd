@@ -5,12 +5,12 @@ var address : String = "127.0.0.1"
 var port = 9999
 var max_players = 100
 
-@onready var status_label = $/root/Server/ServerStatus
 var boot_status = "OFFLINE"
 var world_status = "OFFLINE"
 
-var connected_clients_count = 0
 var connected_clients = {}
+var connected_clients_count = 0
+
 
 #region Server Boot
 func _ready():
@@ -24,8 +24,8 @@ func start_server():
 	
 	multiplayer.set_multiplayer_peer(network)
 	
-	multiplayer.peer_connected.connect(player_connected)
-	multiplayer.peer_disconnected.connect(player_disconnected)
+	multiplayer.peer_connected.connect(client_connected)
+	multiplayer.peer_disconnected.connect(client_disconnected)
 	multiplayer.connected_to_server.connect(connected_to_server)
 	multiplayer.connection_failed.connect(connection_failed)
 	
@@ -36,17 +36,6 @@ func start_server():
 	else:
 		print_log("server", "Listening for connections.")
 		boot_status = "OK"
-	
-	update_status_display()
-
-func update_status_display():
-	status_label.text = ""
-	status_label.text += "Boot: " + boot_status + "\n"
-	status_label.text += "World: " + world_status + "\n"
-	status_label.text += "\n"
-	status_label.text += "Connections: " + str(connected_clients_count) + "\n"
-	for i in connected_clients:
-		status_label.text += "Client: " + str(connected_clients[i].ID) + "/" + str(connected_clients[i].Name) +  "\n"
 
 func print_log(type, content):
 	# type = server, network, world,
@@ -55,25 +44,24 @@ func print_log(type, content):
 #endregion
 
 #region Network Events
-func player_connected(client_id):
+func client_connected(client_id):
 	print_log("network","Client " + str(client_id) + " connected.")
 	connected_clients_count += 1
-	update_status_display()
+	
 
-func player_disconnected(client_id):
+func client_disconnected(client_id):
 	print_log("network","Client " + str(client_id) + " disconnected.")
 	connected_clients_count -= 1
 	connected_clients.erase(client_id)
-	update_status_display()
 	#var players = get_tree().get_nodes_in_group("Player")
 	#for i in players:
 	#	if i.name == str(client_id):
 	#		i.queue_free()
 
-func connected_to_server(client_id):
+func connected_to_server(_client_id):
 	pass
 
-func connection_failed(client_id):
+func connection_failed(_client_id):
 	pass
 
 @rpc("any_peer")
@@ -83,11 +71,10 @@ func sync_client_information(player, client_id):
 			"Name" : player,
 			"ID" : client_id
 		}
-	update_status_display()
 #endregion
 
 #region Game World Events
-func process(delta):
+func process(_delta):
 	pass
 
 @rpc("any_peer")

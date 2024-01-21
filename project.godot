@@ -11,10 +11,11 @@ config_version=5
 [application]
 
 config/name="VaelerunServer"
-run/main_scene="res://Scenes/Main/Server.tscn"
+run/main_scene="res://Scenes/SceneManager.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://Assets/Editor/vael-server.png"
 
 [autoload]
 
 DataImport="*res://Data/DataImport.gd"
+Server="*res://Scripts/Server.gd"

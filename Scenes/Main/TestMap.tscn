@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dok2ntlioxooq"]
+
+[node name="TestMap" type="Node2D"]
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 378.0
+offset_top = 184.0
+offset_right = 566.0
+offset_bottom = 207.0
+text = "this is a test map - hello!"
