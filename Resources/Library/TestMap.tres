@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Map" load_steps=2 format=3 uid="uid://bx8ebc77xwdfl"]
+
+[ext_resource type="Script" path="res://Resources/Types/Map.gd" id="1_bvh45"]
+
+[resource]
+script = ExtResource("1_bvh45")
+map_id = -1
+map_name = "Test Map"
+map_type = 0
+instance_type = 0
+maximum_players = 10
