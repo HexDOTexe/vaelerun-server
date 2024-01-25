@@ -1,7 +1,7 @@
 extends Node
 class_name World
 
-@onready var test_map = preload("res://Scenes/Main/TestMap.tscn")
+@onready var test_map = preload("res://Scenes/Maps/Test/TestMap.tscn")
 
 var world_map
 var is_map_active : bool = false

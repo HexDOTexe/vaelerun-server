@@ -10,6 +10,7 @@ var world_status = "OFFLINE"
 
 var connected_clients = {}
 var connected_clients_count = 0
+var characters = {}
 
 
 #region Server Boot
@@ -47,12 +48,17 @@ func print_log(source, type, content):
 func client_connected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " connected.")
 	connected_clients_count += 1
+	spawn_player_node.rpc_id(0, client_id, 0)
 	
 
 func client_disconnected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " disconnected.")
 	connected_clients_count -= 1
 	connected_clients.erase(client_id)
+	if has_node(str(client_id)):
+		get_node(str(client_id)).queue_free()
+		despawn_player_node.rpc_id(0, client_id)
+	
 	#var players = get_tree().get_nodes_in_group("Player")
 	#for i in players:
 	#	if i.name == str(client_id):
@@ -65,11 +71,11 @@ func connection_failed(_client_id):
 	pass
 
 @rpc("any_peer")
-func sync_client_information(player, client_id):
+func sync_client_information(client_id, player):
 	if !connected_clients.has(client_id):
 		connected_clients[client_id] ={
-			"Name" : player,
-			"ID" : client_id
+			"ID" : client_id,
+			"Name" : player
 		}
 #endregion
 
@@ -77,10 +83,28 @@ func sync_client_information(player, client_id):
 func process(_delta):
 	pass
 
-@rpc("any_peer")
-func spawn_player_node(client_id : int, character_name: String):
+@rpc("any_peer","call_remote")
+func spawn_player_node(client_id : int, position):
 	print_log("server", "world", "Spawning new player node @: ")
-	# Code To Spawn Player Node
+
+@rpc("any_peer")
+func despawn_player_node(client_id : int):
+	pass
+
+@rpc("any_peer")
+func send_node_position(position, rotation, speed):
+	pass
+
+@rpc("any_peer")
+func receive_node_position(position, rotation, speed):
+	var id = multiplayer.get_remote_sender_id()
+	if !characters.has(id):
+		characters[id] ={
+			"ID" : id,
+			"Position" : position,
+		}
+	pass
+
 #endregion
 
 
