@@ -19,3 +19,7 @@ config/icon="res://Assets/Editor/vael-server.png"
 
 DataImport="*res://Data/DataImport.gd"
 Server="*res://Scripts/Server.gd"
+
+[physics]
+
+common/physics_ticks_per_second=30

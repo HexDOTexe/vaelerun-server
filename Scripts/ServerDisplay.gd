@@ -2,7 +2,7 @@ extends Control
 
 @onready var status_label = $ServerStatus
 
-var refresh_rate = 2.0
+var refresh_rate = 1.0
 var refresh_ready = true
 
 func update_status_display():
@@ -14,7 +14,8 @@ func update_status_display():
 		status_label.text += "\n"
 		status_label.text += "Connections: " + str(Server.connected_clients_count) + "\n"
 		for i in Server.connected_clients:
-			status_label.text += "Client: " + str(Server.connected_clients[i].ID) + "/" + str(Server.connected_clients[i].Name) +  "\n"
+			#status_label.text += "Client: " + str(Server.connected_clients[i].ID) + "/" + str(Server.connected_clients[i].Name) +  "\n"
+			status_label.text += "Client: " + str(Server.connected_clients[i].ID) + " / " + str(Server.connected_clients[i].Name) + " @ " + str(Server.player_states_collection[i]["P"]) +  "\n"
 		await get_tree().create_timer(refresh_rate).timeout
 		refresh_ready = true
 	else:

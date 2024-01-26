@@ -3,12 +3,17 @@ class_name World
 
 @onready var test_map = preload("res://Scenes/Maps/Test/TestMap.tscn")
 
-var world_map
 var is_map_active : bool = false
+var world_map
+var world_state
 
 func _ready():
 	load_map()
 	start_map()
+	pass
+
+func _physics_process(delta):
+	process_world_state()
 	pass
 
 func change_map():
@@ -36,4 +41,12 @@ func close_map():
 func report_status():
 	if is_map_active == true:
 		Server.world_status = "ONLINE"
-	pass
+
+func process_world_state():
+	if !Server.player_states_collection.is_empty():
+		world_state = Server.player_states_collection.duplicate(true)
+		for player in world_state.keys():
+			world_state[player].erase("T")
+		world_state["T"] = Time.get_unix_time_from_system()
+		# Do A Bunch Of Things Here
+		Server.send_world_state(world_state)

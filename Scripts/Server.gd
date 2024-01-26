@@ -10,7 +10,7 @@ var world_status = "OFFLINE"
 
 var connected_clients = {}
 var connected_clients_count = 0
-var characters = {}
+var player_states_collection = {}
 
 
 #region Server Boot
@@ -20,9 +20,7 @@ func _ready():
 func start_server():
 	print_log("server", "network", "Starting boot.")
 	var error = network.create_server(port, max_players)
-	
 	network.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
-	
 	multiplayer.set_multiplayer_peer(network)
 	
 	multiplayer.peer_connected.connect(client_connected)
@@ -49,20 +47,17 @@ func client_connected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " connected.")
 	connected_clients_count += 1
 	spawn_player_node.rpc_id(0, client_id, 0)
-	
+	print_log("server", "world", "Spawning new player node for " + str(client_id))
 
 func client_disconnected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " disconnected.")
 	connected_clients_count -= 1
 	connected_clients.erase(client_id)
+	player_states_collection.erase(client_id)
+	despawn_player_node.rpc_id(0, client_id)
 	if has_node(str(client_id)):
 		get_node(str(client_id)).queue_free()
 		despawn_player_node.rpc_id(0, client_id)
-	
-	#var players = get_tree().get_nodes_in_group("Player")
-	#for i in players:
-	#	if i.name == str(client_id):
-	#		i.queue_free()
 
 func connected_to_server(_client_id):
 	pass
@@ -83,33 +78,37 @@ func sync_client_information(client_id, player):
 func process(_delta):
 	pass
 
-@rpc("any_peer","call_remote")
+@rpc("authority", "call_remote", "reliable")
 func spawn_player_node(client_id : int, position):
-	print_log("server", "world", "Spawning new player node @: ")
+	pass
 
-@rpc("any_peer")
+@rpc("authority", "call_remote", "reliable")
 func despawn_player_node(client_id : int):
+	print("despawn!!")
 	pass
 
-@rpc("any_peer")
-func send_node_position(position, rotation, speed):
+func send_player_state(player_state):
 	pass
 
-@rpc("any_peer")
-func receive_node_position(position, rotation, speed):
+@rpc("any_peer", "unreliable_ordered")
+func receive_player_state(player_state):
 	var id = multiplayer.get_remote_sender_id()
-	if !characters.has(id):
-		characters[id] ={
-			"ID" : id,
-			"Position" : position,
-		}
+	if player_states_collection.has(id):
+		if player_states_collection[id]["T"] < player_state["T"]:
+			player_states_collection[id]  = player_state
+			#print_log("client","world","Updating existing state: " + str(player_state))
+	else:
+		player_states_collection[id] = player_state
+		print_log("client","world","Adding new state: " + str(player_state))
+
+func send_world_state(world_state):
+	receive_world_state.rpc_id(0, world_state)
 	pass
 
+@rpc("any_peer", "unreliable_ordered")
+func receive_world_state(world_state):
+	pass
 #endregion
-
-
-
-
 
 
 

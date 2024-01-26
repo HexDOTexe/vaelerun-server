@@ -3,6 +3,7 @@
 [node name="TestMap" type="Node2D"]
 
 [node name="Label2" type="Label" parent="."]
+visible = false
 offset_left = 378.0
 offset_top = 184.0
 offset_right = 566.0
