@@ -24,6 +24,7 @@ func change_map():
 
 func load_map():
 	world_map = test_map.instantiate()
+	world_map.name = "Map"
 	add_child(world_map)
 	Server.print_log("server", "world", "Map has been loaded.")
 	pass

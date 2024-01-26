@@ -12,7 +12,6 @@ var connected_clients = {}
 var connected_clients_count = 0
 var player_states_collection = {}
 
-
 #region Server Boot
 func _ready():
 	start_server()
@@ -55,9 +54,9 @@ func client_disconnected(client_id):
 	connected_clients.erase(client_id)
 	player_states_collection.erase(client_id)
 	despawn_player_node.rpc_id(0, client_id)
-	if has_node(str(client_id)):
-		get_node(str(client_id)).queue_free()
-		despawn_player_node.rpc_id(0, client_id)
+	#if has_node(str(client_id)):
+	#	get_node(str(client_id)).queue_free()
+	#	despawn_player_node.rpc_id(0, client_id)
 
 func connected_to_server(_client_id):
 	pass
@@ -84,7 +83,6 @@ func spawn_player_node(client_id : int, position):
 
 @rpc("authority", "call_remote", "reliable")
 func despawn_player_node(client_id : int):
-	print("despawn!!")
 	pass
 
 func send_player_state(player_state):
@@ -103,7 +101,6 @@ func receive_player_state(player_state):
 
 func send_world_state(world_state):
 	receive_world_state.rpc_id(0, world_state)
-	pass
 
 @rpc("any_peer", "unreliable_ordered")
 func receive_world_state(world_state):
