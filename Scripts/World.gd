@@ -10,11 +10,9 @@ var world_state
 func _ready():
 	load_map()
 	start_map()
-	pass
 
 func _physics_process(delta):
 	process_world_state()
-	pass
 
 func change_map():
 	if is_map_active == false:
@@ -27,14 +25,12 @@ func load_map():
 	world_map.name = "Map"
 	add_child(world_map)
 	Server.print_log("server", "world", "Map has been loaded.")
-	pass
 
 func start_map():
 	# eventually this will control entity activation signals for the loaded map
 	Server.world_status = "ONLINE"
 	is_map_active = true
 	Server.print_log("server", "world", "Map has been started.")
-	pass
 
 func close_map():
 	pass

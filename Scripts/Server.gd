@@ -4,6 +4,7 @@ var network = ENetMultiplayerPeer.new()
 var address : String = "127.0.0.1"
 var port = 9999
 var max_players = 100
+var debug_fake_latency = 0.05
 
 var boot_status = "OFFLINE"
 var world_status = "OFFLINE"
@@ -48,12 +49,15 @@ func print_log(source, type, content):
 func client_connected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " connected.")
 	connected_clients_count += 1
-	spawn_player_node.rpc_id(0, client_id, 0)
 	print_log("server", "world", "Spawning new player node for " + str(client_id))
+	await get_tree().create_timer(debug_fake_latency).timeout
+	spawn_player_node.rpc_id(0, client_id, 0)
+	
 
 func client_disconnected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " disconnected.")
 	connected_clients_count -= 1
+	await get_tree().create_timer(debug_fake_latency).timeout
 	connected_clients.erase(client_id)
 	player_states_collection.erase(client_id)
 	despawn_player_node.rpc_id(0, client_id)
@@ -72,6 +76,7 @@ func sync_client_information(client_id, player):
 @rpc("any_peer", "call_remote")
 func request_server_time(client_time):
 	var client_id = multiplayer.get_remote_sender_id()
+	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_server_time.rpc_id(client_id, Time.get_unix_time_from_system(), client_time)
 
 @rpc("authority", "call_remote", "reliable")
@@ -82,6 +87,7 @@ func receive_server_time():
 func request_latency(client_time):
 	var client_id = multiplayer.get_remote_sender_id()
 	print(Time.get_unix_time_from_system())
+	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_latency.rpc_id(client_id, client_time)
 
 @rpc("authority", "call_remote")
@@ -113,6 +119,9 @@ func receive_player_state(player_state):
 		print_log("client","world","Adding new state: " + str(player_state))
 
 func send_world_state(world_state):
+	# World state packets currently contain the following elements:
+	# "T" - Timestamp // "P" - Position
+	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_world_state.rpc_id(0, world_state)
 
 @rpc("any_peer", "unreliable_ordered")
