@@ -16,16 +16,19 @@ var player_states_collection = {}
 func _ready():
 	start_server()
 
+func process(_delta):
+	pass
+
+func _physics_process(delta):
+	pass
+
 func start_server():
 	print_log("server", "network", "Starting boot.")
 	var error = network.create_server(port, max_players)
 	network.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.set_multiplayer_peer(network)
-	
 	multiplayer.peer_connected.connect(client_connected)
 	multiplayer.peer_disconnected.connect(client_disconnected)
-	multiplayer.connected_to_server.connect(connected_to_server)
-	multiplayer.connection_failed.connect(connection_failed)
 	
 	if error != OK:
 		print_log("server", "network", "ERROR: Could not start network service.")
@@ -58,25 +61,35 @@ func client_disconnected(client_id):
 	#	get_node(str(client_id)).queue_free()
 	#	despawn_player_node.rpc_id(0, client_id)
 
-func connected_to_server(_client_id):
-	pass
-
-func connection_failed(_client_id):
-	pass
-
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func sync_client_information(client_id, player):
 	if !connected_clients.has(client_id):
 		connected_clients[client_id] ={
 			"ID" : client_id,
 			"Name" : player
 		}
+
+@rpc("any_peer", "call_remote")
+func request_server_time(client_time):
+	var client_id = multiplayer.get_remote_sender_id()
+	receive_server_time.rpc_id(client_id, Time.get_unix_time_from_system(), client_time)
+
+@rpc("authority", "call_remote", "reliable")
+func receive_server_time():
+	pass
+
+@rpc("any_peer", "call_remote")
+func request_latency(client_time):
+	var client_id = multiplayer.get_remote_sender_id()
+	print(Time.get_unix_time_from_system())
+	receive_latency.rpc_id(client_id, client_time)
+
+@rpc("authority", "call_remote")
+func receive_latency():
+	pass
 #endregion
 
 #region Game World Events
-func process(_delta):
-	pass
-
 @rpc("authority", "call_remote", "reliable")
 func spawn_player_node(client_id : int, position):
 	pass
