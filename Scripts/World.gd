@@ -68,7 +68,6 @@ func spawn_or_despawn_entity():
 	# type: chosen randomly from the list of entity_types
 	# spawn_location: chosen randomly from the list of entity_spawn_locations
 	# (entity_spawn_locations will eventually be populated with EntitySpawns from the Map.)
-	Server.print_log("server", "world", "Spawning new entity node")
 	if entity_list.size() >= entity_maximum:
 		pass
 	else:
@@ -89,10 +88,12 @@ func spawn_or_despawn_entity():
 			"entity_respawn_timer": 1
 			}
 		entity_id_counter += 1
+		Server.print_log("server", "world", "Spawning new entity node")
 		# the 'despawn' part of this function
 		for entity in entity_list.keys():
 			if entity_list[entity]["entity_state"] == "Dead":
 				if entity_list[entity]["entity_respawn_timer"] == 0:
 					entity_list.erase(entity)
+					Server.print_log("server", "world", "Cleaning up dead entity node")
 				else:
 					entity_list[entity]["entity_respawn_timer"] = entity_list[entity]["entity_respawn_timer"] - 1

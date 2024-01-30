@@ -4,7 +4,7 @@ var network = ENetMultiplayerPeer.new()
 var address : String = "127.0.0.1"
 var port = 9999
 var max_players = 100
-var debug_fake_latency = 0.05
+var debug_fake_latency = 0.0
 
 var boot_status = "OFFLINE"
 var world_status = "OFFLINE"
