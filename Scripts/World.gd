@@ -7,6 +7,14 @@ var is_map_active : bool = false
 var world_map
 var world_state
 
+var entity_id_counter = 1
+var entity_maximum = 2
+var entity_types =["Slime"]
+var entity_spawn_locations = [Vector2(300, 300), Vector2(400, 400)]
+var open_entity_spawns = [0, 1]
+var busy_entity_spawns = {}
+var entity_list = {}
+
 func _ready():
 	load_map()
 	start_map()
@@ -28,6 +36,12 @@ func load_map():
 
 func start_map():
 	# eventually this will control entity activation signals for the loaded map
+	var map_spawn_timer = Timer.new()
+	map_spawn_timer.name = "SpawnTimer"
+	map_spawn_timer.wait_time = 3
+	map_spawn_timer.autostart = true
+	map_spawn_timer.connect("timeout", spawn_entity)
+	add_child(map_spawn_timer)
 	Server.world_status = "ONLINE"
 	is_map_active = true
 	Server.print_log("server", "world", "Map has been started.")
@@ -47,3 +61,8 @@ func process_world_state():
 		world_state["T"] = Time.get_unix_time_from_system()
 		# Do A Bunch Of Things Here
 		Server.send_world_state(world_state)
+
+func spawn_entity():
+	Server.print_log("server", "world", "Spawning new entity node")
+	if entity_list.size() >= entity_maximum:
+		pass
