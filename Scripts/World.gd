@@ -9,7 +9,7 @@ var world_state
 
 var entity_id_counter = 1
 var entity_maximum = 2
-var entity_types =["Slime"]
+var entity_types =["Warmech"]
 var entity_spawn_locations = [Vector2(300, 300), Vector2(400, 400)]
 var open_entity_spawns = [0, 1]
 var busy_entity_spawns = {}
@@ -38,7 +38,7 @@ func start_map():
 	# eventually this will control entity activation signals for the loaded map
 	var map_spawn_timer = Timer.new()
 	map_spawn_timer.name = "SpawnTimer"
-	map_spawn_timer.wait_time = 3
+	map_spawn_timer.wait_time = 5
 	map_spawn_timer.autostart = true
 	map_spawn_timer.connect("timeout", spawn_or_despawn_entity)
 	add_child(map_spawn_timer)
@@ -81,9 +81,9 @@ func spawn_or_despawn_entity():
 		# eventually these definitions will be replaced with a database lookup instead of coded
 		entity_list[entity_id_counter] = {
 			"entity_type": type, 
-			"entity_spawn_location": spawn_location,
-			"entity_current_health": 500,
-			"entity_maximum_Health": 500,
+			"entity_location": spawn_location,
+			"entity_stat_health_current": 500,
+			"entity_stat_health_maximum": 500,
 			"entity_state": "Idle",
 			"entity_respawn_timer": 1
 			}
