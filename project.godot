@@ -20,6 +20,10 @@ config/icon="res://Assets/Editor/vael-server.png"
 DataImport="*res://Data/DataImport.gd"
 Server="*res://Scripts/Server.gd"
 
+[display]
+
+window/vsync/vsync_mode=0
+
 [physics]
 
 common/physics_ticks_per_second=20

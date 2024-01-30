@@ -88,12 +88,12 @@ func spawn_or_despawn_entity():
 			"entity_respawn_timer": 1
 			}
 		entity_id_counter += 1
-		Server.print_log("server", "world", "Spawning new entity node")
+		Server.print_log("server", "world", "Spawning new entity node.")
 		# the 'despawn' part of this function
 		for entity in entity_list.keys():
 			if entity_list[entity]["entity_state"] == "Dead":
 				if entity_list[entity]["entity_respawn_timer"] == 0:
 					entity_list.erase(entity)
-					Server.print_log("server", "world", "Cleaning up dead entity node")
+					Server.print_log("server", "world", "Cleaning up dead entity node.")
 				else:
 					entity_list[entity]["entity_respawn_timer"] = entity_list[entity]["entity_respawn_timer"] - 1

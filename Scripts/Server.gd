@@ -4,7 +4,7 @@ var network = ENetMultiplayerPeer.new()
 var address : String = "127.0.0.1"
 var port = 9999
 var max_players = 100
-var debug_fake_latency = 0.0
+var arguments = {}
 
 var boot_status = "OFFLINE"
 var world_status = "OFFLINE"
@@ -13,8 +13,11 @@ var connected_clients = {}
 var connected_clients_count = 0
 var player_states_collection = {}
 
+var debug_fake_latency = 0.0
+
 #region Server Boot
 func _ready():
+	configure_server()
 	start_server()
 
 func process(_delta):
@@ -23,8 +26,23 @@ func process(_delta):
 func _physics_process(delta):
 	pass
 
+func configure_server():
+	for argument in OS.get_cmdline_user_args():
+		if argument.find("=") > -1:
+			var key_value = argument.split("=")
+			arguments[key_value[0].lstrip("--")] = key_value[1]
+		else:
+			arguments[argument.lstrip("--")] = ""
+	#print(arguments)
+	if !arguments.has("ip"):
+		print_log("server", "network", "No custom IP configuration present, using default address.")
+	else:
+		address = arguments["ip"]
+		print_log("server", "network", "Network interface configuration present.")
+	#print_log("server", "boot", "Network address set as: " + str(testaddress))
+
 func start_server():
-	print_log("server", "network", "Starting boot.")
+	print_log("server", "network", "Starting network interface on: " + str(address))
 	var error = network.create_server(port, max_players)
 	network.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.set_multiplayer_peer(network)
@@ -36,7 +54,7 @@ func start_server():
 		boot_status = "ERROR"
 		return
 	else:
-		print_log("server", "network", "Listening for connections.")
+		print_log("server", "network", "Interface listening for connections.")
 		boot_status = "OK"
 
 func print_log(source, type, content):
