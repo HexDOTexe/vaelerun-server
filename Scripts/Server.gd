@@ -67,6 +67,8 @@ func client_disconnected(client_id):
 
 @rpc("any_peer", "call_remote")
 func sync_client_information(client_id, player):
+	# Function called on the server, initiated by the client.
+	# Empty function exists on the client to pass the RPC validation check.
 	if !connected_clients.has(client_id):
 		connected_clients[client_id] ={
 			"ID" : client_id,
@@ -75,23 +77,30 @@ func sync_client_information(client_id, player):
 
 @rpc("any_peer", "call_remote")
 func request_server_time(client_time):
+	# Function called on the server, initiated by the client.
+	# Empty function exists on the client to pass the RPC validation check.
 	var client_id = multiplayer.get_remote_sender_id()
 	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_server_time.rpc_id(client_id, Time.get_unix_time_from_system(), client_time)
 
 @rpc("authority", "call_remote", "reliable")
 func receive_server_time():
+	# Function called on the client, initiated by the server.
+	# Empty function exists here to pass the RPC validation check.
 	pass
 
 @rpc("any_peer", "call_remote")
 func request_latency(client_time):
+	# Function called on the server, initiated by the client.
+	# Empty function exists on the client to pass the RPC validation check.
 	var client_id = multiplayer.get_remote_sender_id()
-	print(Time.get_unix_time_from_system())
 	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_latency.rpc_id(client_id, client_time)
 
 @rpc("authority", "call_remote")
 func receive_latency():
+	# Function called on the client, initiated by the server.
+	# Empty function exists here to pass the RPC validation check
 	pass
 #endregion
 
