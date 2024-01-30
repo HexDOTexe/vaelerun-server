@@ -40,7 +40,7 @@ func start_map():
 	map_spawn_timer.name = "SpawnTimer"
 	map_spawn_timer.wait_time = 3
 	map_spawn_timer.autostart = true
-	map_spawn_timer.connect("timeout", spawn_entity)
+	map_spawn_timer.connect("timeout", spawn_or_despawn_entity)
 	add_child(map_spawn_timer)
 	Server.world_status = "ONLINE"
 	is_map_active = true
@@ -59,10 +59,40 @@ func process_world_state():
 		for player in world_state.keys():
 			world_state[player].erase("T")
 		world_state["T"] = Time.get_unix_time_from_system()
+		world_state["Entities"] =  entity_list
 		# Do A Bunch Of Things Here
 		Server.send_world_state(world_state)
 
-func spawn_entity():
+func spawn_or_despawn_entity():
+	# Has support for the following:
+	# type: chosen randomly from the list of entity_types
+	# spawn_location: chosen randomly from the list of entity_spawn_locations
+	# (entity_spawn_locations will eventually be populated with EntitySpawns from the Map.)
 	Server.print_log("server", "world", "Spawning new entity node")
 	if entity_list.size() >= entity_maximum:
 		pass
+	else:
+		# the 'spawn' part of this function
+		randomize()
+		var type = entity_types[randi() % entity_types.size()]
+		var random_index = randi() % open_entity_spawns.size()
+		var spawn_location = entity_spawn_locations[open_entity_spawns[random_index]]
+		busy_entity_spawns[entity_id_counter] = open_entity_spawns[random_index]
+		open_entity_spawns.remove_at(random_index)
+		# eventually these definitions will be replaced with a database lookup instead of coded
+		entity_list[entity_id_counter] = {
+			"entity_type": type, 
+			"entity_spawn_location": spawn_location,
+			"entity_current_health": 500,
+			"entity_maximum_Health": 500,
+			"entity_state": "Idle",
+			"entity_respawn_timer": 1
+			}
+		entity_id_counter += 1
+		# the 'despawn' part of this function
+		for entity in entity_list.keys():
+			if entity_list[entity]["entity_state"] == "Dead":
+				if entity_list[entity]["entity_respawn_timer"] == 0:
+					entity_list.erase(entity)
+				else:
+					entity_list[entity]["entity_respawn_timer"] = entity_list[entity]["entity_respawn_timer"] - 1
