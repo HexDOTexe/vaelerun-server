@@ -9,7 +9,7 @@ var world_state
 
 var entity_id_counter = 1
 var entity_maximum = 2
-var entity_types =["Warmech"]
+var entity_index_list =[1]
 var entity_spawn_locations = [Vector2(300, 300), Vector2(400, 400)]
 var open_entity_spawns = [0, 1]
 var busy_entity_spawns = {}
@@ -65,7 +65,7 @@ func process_world_state():
 
 func spawn_or_despawn_entity():
 	# Has support for the following:
-	# type: chosen randomly from the list of entity_types
+	# type: chosen randomly from the entity_index_list
 	# spawn_location: chosen randomly from the list of entity_spawn_locations
 	# (entity_spawn_locations will eventually be populated with EntitySpawns from the Map.)
 	if entity_list.size() >= entity_maximum:
@@ -73,25 +73,25 @@ func spawn_or_despawn_entity():
 	else:
 		# the 'spawn' part of this function
 		randomize()
-		var type = entity_types[randi() % entity_types.size()]
+		var index_id = entity_index_list[randi() % entity_index_list.size()]
 		var random_index = randi() % open_entity_spawns.size()
 		var spawn_location = entity_spawn_locations[open_entity_spawns[random_index]]
 		busy_entity_spawns[entity_id_counter] = open_entity_spawns[random_index]
 		open_entity_spawns.remove_at(random_index)
 		# eventually these definitions will be replaced with a database lookup instead of coded
 		entity_list[entity_id_counter] = {
-			"entity_type": type, 
-			"entity_location": spawn_location,
-			"entity_stat_health_current": 500,
-			"entity_stat_health_maximum": 500,
-			"entity_state": "Idle",
+			"entity_index_id": index_id, 
+			"location": spawn_location,
+			"health_current": 500,
+			"health_maximum": 500,
+			"state": "Idle",
 			"entity_respawn_timer": 1
 			}
 		entity_id_counter += 1
 		Server.print_log("server", "world", "Spawning new entity node.")
 		# the 'despawn' part of this function
 		for entity in entity_list.keys():
-			if entity_list[entity]["entity_state"] == "Dead":
+			if entity_list[entity]["state"] == "Dead":
 				if entity_list[entity]["entity_respawn_timer"] == 0:
 					entity_list.erase(entity)
 					Server.print_log("server", "world", "Cleaning up dead entity node.")
