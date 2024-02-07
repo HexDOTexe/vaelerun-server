@@ -13,7 +13,7 @@ var connected_clients = {}
 var connected_clients_count = 0
 var player_states_collection = {}
 
-var debug_fake_latency = 0.0
+var debug_fake_latency = 0.05
 
 #region Server Boot
 func _ready():
@@ -44,6 +44,7 @@ func configure_server():
 func start_server():
 	print_log("server", "network", "Starting network interface on: " + str(address))
 	var error = network.create_server(port, max_players)
+	network.set_bind_ip(address)
 	network.get_host().compress(ENetConnection.COMPRESS_RANGE_CODER)
 	multiplayer.set_multiplayer_peer(network)
 	multiplayer.peer_connected.connect(client_connected)
@@ -68,14 +69,12 @@ func client_connected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " connected.")
 	connected_clients_count += 1
 	print_log("server", "world", "Spawning new player node for " + str(client_id))
-	await get_tree().create_timer(debug_fake_latency).timeout
 	spawn_player_node.rpc_id(0, client_id, 0)
 	
 
 func client_disconnected(client_id):
 	print_log("client", "network", "Client " + str(client_id) + " disconnected.")
 	connected_clients_count -= 1
-	await get_tree().create_timer(debug_fake_latency).timeout
 	connected_clients.erase(client_id)
 	player_states_collection.erase(client_id)
 	despawn_player_node.rpc_id(0, client_id)
@@ -98,7 +97,6 @@ func request_server_time(client_time):
 	# Function called on the server, initiated by the client.
 	# Empty function exists on the client to pass the RPC validation check.
 	var client_id = multiplayer.get_remote_sender_id()
-	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_server_time.rpc_id(client_id, Time.get_unix_time_from_system(), client_time)
 
 @rpc("authority", "call_remote", "reliable")
@@ -112,7 +110,6 @@ func request_latency(client_time):
 	# Function called on the server, initiated by the client.
 	# Empty function exists on the client to pass the RPC validation check.
 	var client_id = multiplayer.get_remote_sender_id()
-	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_latency.rpc_id(client_id, client_time)
 
 @rpc("authority", "call_remote")
@@ -143,15 +140,14 @@ func receive_player_state(player_state):
 			#print_log("client","world","Updating existing state: " + str(player_state))
 	else:
 		player_states_collection[id] = player_state
-		print_log("client","world","Adding new state: " + str(player_state))
+		#print_log("client","world","Receiving initial state: " + str(player_state))
 
 func send_world_state(world_state):
 	# World state packets currently contain the following elements:
 	# "T" - Timestamp // "P" - Position
-	await get_tree().create_timer(debug_fake_latency).timeout
 	receive_world_state.rpc_id(0, world_state)
 
-@rpc("any_peer", "unreliable_ordered")
+@rpc("authority", "unreliable_ordered")
 func receive_world_state(world_state):
 	pass
 #endregion
