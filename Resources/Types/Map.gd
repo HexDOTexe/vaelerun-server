@@ -9,3 +9,5 @@ enum instance_types {NONE, SOLO, PARTY, ALLIANCE}
 @export var map_type : map_types
 @export var instance_type : instance_types
 @export var maximum_players : int
+
+var world_time_of_day : int = 12

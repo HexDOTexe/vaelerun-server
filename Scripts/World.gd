@@ -5,12 +5,20 @@ class_name World
 
 var is_map_active : bool = false
 var world_map
-var world_state
+var world_time_of_day = 12
+var world_state : Dictionary = {
+	"0":null,
+	"1":null,
+	"2":null,
+	"3":null
+}
+
+var player_list = {}
 
 var entity_id_counter = 1
 var entity_maximum = 2
 var entity_index_list =[1]
-var entity_spawn_locations = [Vector2(300, 300), Vector2(400, 400)]
+var entity_spawn_locations = [Vector2(250, -100), Vector2(250, 200)]
 var open_entity_spawns = [0, 1]
 var busy_entity_spawns = {}
 var entity_list = {}
@@ -54,12 +62,20 @@ func report_status():
 		Server.world_status = "ONLINE"
 
 func process_world_state():
+	# 0 - Time / <server time>
+	# 1 - World / T:<world_time_of_day>, W:<world_weather_type>
+	# 2 - Players / <client_id> / N:<name>, P:<pos>, S:<state>
+	# 3 - Entities / <entity_id> / I:<index_id>, N:<name>, P:<pos>, S:<state>
 	if !Server.player_states_collection.is_empty():
-		world_state = Server.player_states_collection.duplicate(true)
-		for player in world_state.keys():
-			world_state[player].erase("T")
-		world_state["T"] = Time.get_unix_time_from_system()
-		world_state["Entities"] =  entity_list
+		world_state["0"] = Time.get_unix_time_from_system()
+		world_state["1"] = {"T":"<world_time_of_day>", "W":"<weather>"}
+		world_state["2"] = Server.player_states_collection.duplicate(true)
+		for player in world_state["2"].keys():
+			var char_name = str(Server.connected_clients[player].Name)
+			world_state["2"][player].erase("T")
+			world_state["2"][player]["N"] = char_name
+			world_state["2"][player]["S"] = "Idle"
+		world_state["3"] =  entity_list
 		# Do A Bunch Of Things Here
 		Server.send_world_state(world_state)
 
@@ -73,25 +89,28 @@ func spawn_or_despawn_entity():
 	else:
 		# the 'spawn' part of this function
 		randomize()
+		var entity_id = entity_id_counter + 1000
 		var index_id = entity_index_list[randi() % entity_index_list.size()]
 		var random_index = randi() % open_entity_spawns.size()
 		var spawn_location = entity_spawn_locations[open_entity_spawns[random_index]]
 		busy_entity_spawns[entity_id_counter] = open_entity_spawns[random_index]
 		open_entity_spawns.remove_at(random_index)
 		# eventually these definitions will be replaced with a database lookup instead of coded
-		entity_list[entity_id_counter] = {
-			"entity_index_id": index_id, 
-			"location": spawn_location,
-			"health_current": 500,
-			"health_maximum": 500,
-			"state": "Idle",
-			"entity_respawn_timer": 1
+		entity_list[entity_id] = {
+			"I": index_id, 
+			"P": spawn_location,
+			"S": "Idle",
+			"HC": 500,
+			"HM": 500,
+			"PC": 100,
+			"PM": 100,
+			"RT": 1
 			}
 		entity_id_counter += 1
 		Server.print_log("server", "world", "Spawning new entity node.")
 		# the 'despawn' part of this function
 		for entity in entity_list.keys():
-			if entity_list[entity]["state"] == "Dead":
+			if entity_list[entity]["S"] == "Dead":
 				if entity_list[entity]["entity_respawn_timer"] == 0:
 					entity_list.erase(entity)
 					Server.print_log("server", "world", "Cleaning up dead entity node.")

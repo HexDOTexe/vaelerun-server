@@ -121,7 +121,7 @@ func receive_latency():
 
 #region Game World Events
 @rpc("authority", "call_remote", "reliable")
-func spawn_player_node(client_id : int, position):
+func spawn_player_node(client_id : int, character_name, position):
 	pass
 
 @rpc("authority", "call_remote", "reliable")
@@ -136,7 +136,7 @@ func receive_player_state(player_state):
 	var id = multiplayer.get_remote_sender_id()
 	if player_states_collection.has(id):
 		if player_states_collection[id]["T"] < player_state["T"]:
-			player_states_collection[id]  = player_state
+			player_states_collection[id] = player_state
 			#print_log("client","world","Updating existing state: " + str(player_state))
 	else:
 		player_states_collection[id] = player_state
@@ -144,11 +144,32 @@ func receive_player_state(player_state):
 
 func send_world_state(world_state):
 	# World state packets currently contain the following elements:
-	# "T" - Timestamp // "P" - Position
+	# Players:	"T" - Timestamp 	/ "P" - Position
+	# Entities: "entity_index_id" 	/ "location" 		/ "current_health"
+	# Entities: "maximum_health"	/ "entity_state" 	/ "entity_respawn_timer"
+	print(world_state)
 	receive_world_state.rpc_id(0, world_state)
 
 @rpc("authority", "unreliable_ordered")
 func receive_world_state(world_state):
+	pass
+
+func send_chat_event(message):
+	pass
+
+@rpc ("any_peer", "reliable")
+func receive_chat_event(message):
+	var client_id = multiplayer.get_remote_sender_id()
+	# TBD - Server filters/processes chat messages here
+	# profanity filter, blocked messages, etc
+	var new_message = str("[",client_id,"]: ",message,"\n")
+	send_chat_message(new_message)
+
+func send_chat_message(message):
+	receive_chat_message.rpc_id(0, message)
+
+@rpc("authority", "reliable")
+func receive_chat_message(message):
 	pass
 #endregion
 

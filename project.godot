@@ -13,6 +13,7 @@ config_version=5
 config/name="VaelerunServer"
 run/main_scene="res://Scenes/SceneManager.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
+boot_splash/show_image=false
 config/icon="res://Assets/Editor/vael-server.png"
 
 [autoload]
