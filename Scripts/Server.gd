@@ -162,7 +162,8 @@ func receive_chat_event(message):
 	var client_id = multiplayer.get_remote_sender_id()
 	# TBD - Server filters/processes chat messages here
 	# profanity filter, blocked messages, etc
-	var new_message = str("[",client_id,"]: ",message,"\n")
+	var char_name = str(Server.connected_clients[client_id].Name)
+	var new_message = str("[",char_name,"]: ",message,"\n")
 	send_chat_message(new_message)
 
 func send_chat_message(message):
