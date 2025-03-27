@@ -4,4 +4,4 @@ A functional yet incomplete demo for an MMORPG-style server application, written
 
 Intended to pair with [vaelerun-client](https://github.com/HexDOTexe/vaelerun-client).
 
-This project is no longer being worked on.
+This project is now read-only archived and is no longer being worked on.
